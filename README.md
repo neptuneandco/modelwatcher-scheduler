@@ -1,6 +1,8 @@
 # ModelWatcher Scheduler
 ModelWatcher-Scheduler is designed to watch output from long-running models and automatically trigger postprocessing/rendering scripts every time the output file is updated.
 
+![model watching robot](./ModelWatcherScheduler.png)
+
 ## Installation
 TODO
 
