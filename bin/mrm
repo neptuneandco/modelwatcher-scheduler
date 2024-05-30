@@ -1,0 +1,115 @@
+#! /usr/bin/env node
+//    _____             .___     .__                  __         .__                  
+//   /     \   ____   __| _/____ |  |__  _  _______ _/  |_  ____ |  |__   ___________ 
+//  /  \ /  \ /  _ \ / __ |/ __ \|  |\ \/ \/ /\__  \\   __\/ ___\|  |  \_/ __ \_  __ \
+// /    Y    (  <_> ) /_/ \  ___/|  |_\     /  / __ \|  | \  \___|   Y  \  ___/|  | \/
+// \____|__  /\____/\____ |\___  >____/\/\_/  (____  /__|  \___  >___|  /\___  >__|   
+//         \/            \/    \/                  \/          \/     \/     \/       
+//
+// Script for removing a watched model from modelwatchers watchlist.
+//
+const usage = 
+`
+MODELWATCHER RM
+Remove a model from the modelwatcher.
+
+mrm watchid
+`;
+
+// Libraries
+const fs = require('fs');
+const {flock} = require('fs-ext');
+
+// The watchfile is where we keep our observed models.
+const mwDir = __dirname + '/../';
+
+//------------------------------------------------------------------------------
+// Helper functions.
+
+/**
+ * Lock the watchlist file.
+ */
+function lockWatchlist() {
+    return new Promise((resolve, reject) => {
+        flock(watchlistFD, 'ex', (err) => {
+            if (err) {
+                reject(`Failed to lock watchlist:' ${err}`);
+            }
+
+            resolve();
+        });
+    });
+}
+
+/**
+ * Unlock the watchlist file.
+ * @returns {Promise}
+ */
+function releaseWatchlist() {
+    return new Promise((resolve, reject) => {
+        flock(watchlistFD, 'un', (err) => {
+            if (err) {
+                reject(`Failed to unlock watchlist:' ${err}`);
+            }
+            resolve();
+        });
+    });
+}
+
+/**
+ * Verify modelwatcher is running. Currently we just check the configuration files exist.
+ */
+function modelwatcherRunning() {
+    return fs.existsSync(mwDir + 'watchlist.json') && fs.existsSync(mwDir + 'renderers.json');
+}
+
+/**
+ * Verify command line input.
+ * We just have a single argument, the watch id.
+ */
+function commandLineInput() {
+
+    // We need complete arguments.
+    if (process.argv.slice(1)[0] === undefined) {
+        console.log(usage);
+        process.exit(1);
+    }
+
+    return process.argv.slice(2)[0];
+}
+
+//------------------------------------------------------------------------------
+// Execute
+
+if (!modelwatcherRunning()) {
+    console.log('Modelwatcher appears to not be running. Please contact support.');
+    process.exit(1);
+}
+
+// Configuation.
+let watchlist = JSON.parse(fs.readFileSync(mwDir + 'watchlist.json', 'utf8'));
+const watchid = commandLineInput();
+
+// Check to see if the watchid exists.
+if (watchlist.watch[watchid] === undefined) {
+    console.log('Modelwatcher id not found. Use mls to list current entries.');
+    process.exit(1);
+}
+
+// Remove entry.
+const watchlistFD = fs.openSync(mwDir + 'watchlist.json', 'w+');
+lockWatchlist()
+.then(() => {
+    if (watchlist.watch[watchid] !== undefined) {
+        console.log('Removed model watcher entry:', watchid, watchlist.watch[watchid].basedir);
+        delete watchlist.watch[watchid];
+    }
+    fs.writeFileSync(watchlistFD, JSON.stringify(watchlist, null, 4));
+
+    // Cleanup.
+    releaseWatchlist()
+    .then(() => {
+        fs.closeSync(watchlistFD);
+        process.exit(0);
+    });
+});

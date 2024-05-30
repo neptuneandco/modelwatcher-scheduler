@@ -1,0 +1,8 @@
+{
+    "no-op": {
+        "script": "testrender.sh",
+        "watchfile": "./subdir/modeloutput.txt",
+        "arguments": "",
+        "env": {"UNNEEDED_PATH":"/home"}
+    }
+}

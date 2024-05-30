@@ -1,0 +1,23 @@
+{
+    "name": "modelwatcher-scheduler",
+    "version": "0.1.0",
+    "description": "This software is for automated postprocessing and visualization of model output.",
+    "author": "Skyler Swanson <sswanson@neptuneinc.org>",
+    "contributors": [
+        "Leslie Gains-Germain <lgermain@neptuneinc.org>"
+    ],
+    "license": "Apache-2.0",
+    "private": true,
+    "main": ".js",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/neptuneandco/modelwatcher-scheduler"
+    },
+    "scripts": {
+        "start": "node watch.js"
+    },
+    "dependencies": {
+        "fs-ext": "^2.0.0"
+    },
+    "os": ["darwin", "linux"]
+}

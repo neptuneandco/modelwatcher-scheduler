@@ -1,0 +1,38 @@
+#! /usr/bin/env node
+//    _____             .___     .__                  __         .__                  
+//   /     \   ____   __| _/____ |  |__  _  _______ _/  |_  ____ |  |__   ___________ 
+//  /  \ /  \ /  _ \ / __ |/ __ \|  |\ \/ \/ /\__  \\   __\/ ___\|  |  \_/ __ \_  __ \
+// /    Y    (  <_> ) /_/ \  ___/|  |_\     /  / __ \|  | \  \___|   Y  \  ___/|  | \/
+// \____|__  /\____/\____ |\___  >____/\/\_/  (____  /__|  \___  >___|  /\___  >__|   
+//         \/            \/    \/                  \/          \/     \/     \/       
+//
+// Script for listing models being watched under modelwatcher.
+//
+
+process.chdir(__dirname);
+
+// Libraries
+const fs = require('fs');
+
+console.log('Modelwatcher Watching 𓁿');
+
+// Configuation files.
+if (!fs.existsSync('../watchlist.json')) {
+    console.log('Nothing is currently scheduled.');
+    process.exit(1);
+}
+var watchlist  = JSON.parse( fs.readFileSync('../watchlist.json', 'utf8') );
+
+console.log('id'.padEnd(10,' ') + 'renderer'.padEnd(15,' ') + 'status'.padEnd(20,' ') + 'user'.padEnd(20,' ') + 'directory');
+const models = watchlist.watch;
+for (const model in models) {
+    let state = models[model].state;
+    if (state === undefined) { state = 'watching'; }
+    console.log(
+        String(model).padEnd(10,' ') +
+	    String(models[model].renderer).padEnd(15,' ') +
+	    String(state).padEnd(20,' ') +
+	    String(models[model].who).padEnd(20,' ') +
+	    String(models[model].basedir)
+    );
+}

@@ -1,0 +1,59 @@
+#! /usr/bin/env node
+//    _____             .___     .__                  __         .__                  
+//   /     \   ____   __| _/____ |  |__  _  _______ _/  |_  ____ |  |__   ___________ 
+//  /  \ /  \ /  _ \ / __ |/ __ \|  |\ \/ \/ /\__  \\   __\/ ___\|  |  \_/ __ \_  __ \
+// /    Y    (  <_> ) /_/ \  ___/|  |_\     /  / __ \|  | \  \___|   Y  \  ___/|  | \/
+// \____|__  /\____/\____ |\___  >____/\/\_/  (____  /__|  \___  >___|  /\___  >__|   
+//         \/            \/    \/                  \/          \/     \/     \/       
+//
+// Render status checking script allowing users to check logs of watched models.
+//
+const usage = 
+`
+MODELWATCHER 
+Call mstatus to view the log file of a watched model.
+
+mstatus watchid
+`;
+
+process.chdir(__dirname);
+
+// Libraries
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Verify command line input.
+ * We just have a single argument, the watch id.
+ */
+function commandLineInput() {
+
+    // We need complete arguments.
+    if (process.argv.slice(2)[0] === undefined) {
+        console.log(usage);
+        process.exit(1);
+    }
+
+    return process.argv.slice(2)[0];
+}
+
+
+const watchid = commandLineInput();
+const logfile = path.join(__dirname, `../log/watch${watchid}.txt`);
+if (fs.existsSync(logfile)) {
+
+    console.log(`Latest logfile of modelwatcher id: ${watchid}`);
+    console.log('--------------------------------------------------');
+
+    // Read the file and print its contents
+    fs.readFile(logfile, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading logfile:', err);
+            process.exit(1);
+        }
+        console.log(data);
+    });
+
+} else {
+    console.log(`No log file for watchid:${watchid}`);
+}
