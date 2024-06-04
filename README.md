@@ -4,7 +4,38 @@ ModelWatcher-Scheduler is designed to watch output from long-running models and 
 ![model watching robot](./ModelWatcherScheduler.png)
 
 ## Installation
-TODO
+ModelWatcher-Scheduler (MWS) runs on Linux based systems and has been tested on MacOS and Ubuntu 22. This early version of MWS does not have an installer so will need to be downloaded and configured by hand. The instructions assume you are working in a linux shell (bash or zsh). Follow these installation steps:
+
+1) You will need to have Node.js installed on your system to run MWS. Check to see if node is already installed by checking its version:
+```bash
+node -v
+```
+If node is not found, you can find node installation instructions at: [NodeJS](https://nodejs.org/en)
+
+2) Clone MWS into your linux account.
+```bash
+https://github.com/neptuneandco/modelwatcher-scheduler.git
+```
+
+3) Set up a path to MWS's bin directory. You can do this by adding modelwatcher-scheduler/bin to your .bashrc or .zshrc environment path. Remember to run source on your .bashrc for the change to take effect.
+```bash
+export PATH=~/source/modelwatcher-scheduler/bin:$PATH
+```
+
+4) Install MWS node dependencies.
+```bash
+cd modelwatcher-scheduler
+npm install
+```
+
+5) Run the MWS watcher script. You will want modelwatcher-scheduler/watch.js to run in the background so that it can receive requests and watch model output. A convenient way to do this is using [PM2](https://pm2.keymetrics.io/). Alternatively you can keep it running in tmux or use nohup or even make it a systemD process if you are more experienced with Linux systems.
+
+```bash
+npm install pm2 -g
+cd modelwatcher-scheduler
+pm2 start watch.js
+```
+See PM2 for documentation on how to start and stop processes it manages.
 
 ### Adding Scripts
 Rendering scripts are defined in:
@@ -23,6 +54,9 @@ Each script should have a json entry in the following form. Watchfile tells Mode
 }
 ```
 Postprocessing and rendering scripts need to be kept in the renderscripts directory. You 
+
+### Multi-User 
+ModelWatcher-Scheduler is designed to work as a multi-user system similar to Slurm. To use it this way, you need to make the modelwatcher/bin directory visible to your modelers and others that want to use it. You will also need correct permissions for model output, scripts, and result direcories and files.
 
 ## Usage
 Users access Modelwatcher-Scheduler through the following commands.
